@@ -1,13 +1,14 @@
 #include "Torus.h"
 
-GLfloat r = 0.25;
-GLfloat R = 0.75;
-GLint N = 20;
+// GLfloat _r = 0.25;
+// GLfloat _R = 0.75;
+// GLint _N = 20;
 GLint nT = 10;
 GLfloat chainR = 3.0;
 /*************************************************************************************/
 static GLfloat theta[] = {0.0, 0.0, 0.0}; // trzy kąty obrotu
 // Funkcja rysująca osie układu współrzędnych
+bool spin = true;
 
 enum Model{
     POINTS, NET, TRIANGLES
@@ -54,9 +55,9 @@ void Axes(void)
     glEnd();
 
 }
-bool spin = true;
 
-void drawTorus()
+
+void drawTorus(GLint N, GLfloat r, GLfloat R)
 {
 	Torus t = *(new Torus(N, r, R));
     switch(model)
@@ -155,39 +156,26 @@ void RenderScene(void)
     //Axes();
     // Narysowanie osi przy pomocy funkcji zdefiniowanej wyżej
 
-    // GLfloat R = chainR*M_PI/nT;
-    // GLfloat r = R/4;
-    // GLfloat N = 20;
+    GLfloat _R = chainR*M_PI/nT;
+    GLfloat _r = _R/4;
+    GLfloat _N = 20;
 
     // std::cout << R << std::endl << r << std::endl << N << std::endl;
-    // GLfloat* chain1D = new GLfloat[nT];
-    // for(int i = 0; i < nT; i++)
-    //     chain1D[i] = (float)i/(nT-1);
+    GLfloat* chain1D = new GLfloat[nT];
+    for(int i = 0; i < nT; i++)
+        chain1D[i] = (float)i/(nT-1);
 
-    // point3* chain3D = new point3[nT];
+    point3* chain3D = new point3[nT];
 
-    //  for(int i = 0; i < nT; i++)
-    // {
-    //     chain3D[i][0]= chainR*cos(2*M_PI*chain1D[i]);
-    //     chain3D[i][1]= chainR*sin(2*M_PI*chain1D[i]);
-    //     chain3D[i][2]= 0;
-    //     // std::cout << chain3D[i][0] << " " << chain3D[i][1] << " " << chain3D[i][2] << std::endl;
-    // }
+     for(int i = 0; i < nT; i++)
+    {
+        chain3D[i][0]= chainR*cos(2*M_PI*chain1D[i]);
+        chain3D[i][1]= chainR*sin(2*M_PI*chain1D[i]);
+        chain3D[i][2]= 0;
+        // std::cout << chain3D[i][0] << " " << chain3D[i][1] << " " << chain3D[i][2] << std::endl;
+    }
 
 
-
-    /*Tu będą rysowane torusy o środkach wyliczonych wyżej*/
-    // for(int i = 0; i < nT; i++)
-    // {
-    //     // glBegin(GL_POINTS);
-    //     //     glColor3f(1.0f, 0.0f, 0.0f);
-    //     //     glVertex3f(chain3D[i][0], chain3D[i][1], chain3D[i][2]);
-    //     // glEnd();
-    //     glTranslated(chain3D[i][0], chain3D[i][1], chain3D[i][2]);
-        //drawTorus(N,r,R);
-    //}
-
-    
 
     glRotatef(theta[0], 1.0, 0.0, 0.0);
 
@@ -195,13 +183,27 @@ void RenderScene(void)
 
     glRotatef(theta[2], 0.0, 0.0, 1.0);
 
-    glTranslated((-4)*R, 0.0f, 0.0f);
+    
+    /*Tu będą rysowane torusy o środkach wyliczonych wyżej*/
+    for(int i = 0; i < nT; i++)
+    {
+        // glBegin(GL_POINTS);
+        //     glColor3f(1.0f, 0.0f, 0.0f);
+        //     glVertex3f(chain3D[i][0], chain3D[i][1], chain3D[i][2]);
+        // glEnd();
+        glTranslated(chain3D[i][0], chain3D[i][1], chain3D[i][2]);
+        drawTorus(_N,_r,_R);
+    }
 
-    drawTorus();
+    
 
-    glTranslated(8*R, 0.0f, 0.0f);
+   
 
-    drawTorus();
+    // drawTorus(_N, _r, _R);
+
+    // glTranslated(8*_R, 0.0f, 0.0f);
+
+    // drawTorus(_N, _r, _R);
     
     glFlush();
     // Przekazanie poleceń rysujących do wykonania
