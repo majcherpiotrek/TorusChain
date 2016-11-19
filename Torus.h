@@ -25,5 +25,4 @@ private:
  	GLint getN();
  	GLfloat getOuterR();
  	GLfloat getInnerR();
-
 };

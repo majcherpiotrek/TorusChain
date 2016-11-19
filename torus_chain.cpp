@@ -1,10 +1,10 @@
 #include "Torus.h"
-
+#include <unistd.h>
 // GLfloat _r = 0.25;
 // GLfloat _R = 0.75;
 // GLint _N = 20;
-GLint nT = 10;
-GLfloat chainR = 3.0;
+GLint _nT = 11;
+GLfloat _chainR = 5.0;
 /*************************************************************************************/
 static GLfloat theta[] = {0.0, 0.0, 0.0}; // trzy kąty obrotu
 // Funkcja rysująca osie układu współrzędnych
@@ -57,9 +57,10 @@ void Axes(void)
 }
 
 
-void drawTorus(GLint N, GLfloat r, GLfloat R)
+void drawTorus(Torus& t)
 {
-	Torus t = *(new Torus(N, r, R));
+    GLint N = t.getN();
+
     switch(model)
     {
         case POINTS:
@@ -144,6 +145,111 @@ void drawTorus(GLint N, GLfloat r, GLfloat R)
     }
 }   
 
+void drawChain(GLint nT, GLint chainR)
+{
+    GLfloat _R = 2*chainR*M_PI/nT;
+    GLfloat _r = _R/7;
+    _R = 5*_r;
+    GLfloat _N = 40;
+    Torus torus = *(new Torus(_N, _r, _R));
+    // std::cout << R << std::endl << r << std::endl << N << std::endl;
+    GLfloat* chain1D = new GLfloat[nT];
+    for(int i = 0; i < nT; i++)
+        chain1D[i] = (float)i/nT;
+
+    point3* chain3D = new point3[nT];
+
+     for(int i = 0; i < nT; i++)
+    {
+        chain3D[i][0]= chainR*cos(2*M_PI*chain1D[i]);
+        chain3D[i][1]= chainR*sin(2*M_PI*chain1D[i]);
+        chain3D[i][2]= 0;
+        // std::cout << chain3D[i][0] << " " << chain3D[i][1] << " " << chain3D[i][2] << std::endl;
+    }
+
+    /*Tu będą rysowane torusy o środkach wyliczonych wyżej*/
+    for(int i = 0; i < nT; i++)
+    {
+        point3 vec;
+        GLint id1;
+        GLint id2;
+        
+        if( i == nT - 1)
+            id1 = 0;
+        else
+            id1 = i + 1;
+
+        if( i == 0 )
+            id2 = nT-1;
+        else
+            id2 = i - 1;
+        
+
+
+        vec[0] = chain3D[id1][0] - chain3D[id2][0];
+        vec[1] = chain3D[id1][1] - chain3D[id2][1];
+        vec[2] = chain3D[id1][2] - chain3D[id2][2];
+
+        
+        
+
+        
+
+        if(i%2)
+        {
+            point3 med_vec;
+            med_vec[0] = (-1)*vec[0]/2;
+            med_vec[1] = (-1)*vec[1]/2;
+            med_vec[2] = (-1)*vec[2]/2;
+
+            point3 u;
+            u[0] = chain3D[id1][0] - chain3D[i][0];
+            u[1] = chain3D[id1][1] - chain3D[i][1];
+            u[2] = chain3D[id1][2] - chain3D[i][2];
+
+            point3 x;
+            x[0] = u[0] + med_vec[0];
+            x[1] = u[1] + med_vec[1];
+            x[2] = u[2] + med_vec[2];
+
+            chain3D[i][0] += x[0];
+            chain3D[i][1] += x[1];
+            chain3D[i][2] += x[2];
+        }
+
+        glBegin(GL_LINES);
+            if(i == 0)
+                glColor3f(1.0f, 0.0f, 0.0f);
+            else 
+                if(i == 1 )
+                    glColor3f(0.0f, 0.0f, 1.0f);
+                else
+                    glColor3f(0.0f, 1.0f, 0.0f);
+            glVertex3f(chain3D[i][0], chain3D[i][1], chain3D[i][2]);
+            glVertex3f(chain3D[id1][0], chain3D[id1][1], chain3D[id1][2]);
+        glEnd();
+
+        glBegin(GL_POINTS);
+            glColor3f(1.0f, 0.0f, 0.0f);
+            glVertex3f(chain3D[i][0], chain3D[i][1], chain3D[i][2]);
+        glEnd();
+
+        glTranslated(chain3D[i][0], chain3D[i][1], chain3D[i][2]);
+        
+        
+        if(i%2)
+            glRotated(90.0f, vec[0], vec[1], vec[2]);
+    
+    
+        drawTorus(torus);
+        
+        if(i%2)
+            glRotated(-90.0f, vec[0], vec[1], vec[2]);
+        
+        
+        glTranslated((-1)*chain3D[i][0], (-1)*chain3D[i][1], (-1)*chain3D[i][2]);
+    }
+}
 void RenderScene(void)
 {
 
@@ -156,24 +262,7 @@ void RenderScene(void)
     //Axes();
     // Narysowanie osi przy pomocy funkcji zdefiniowanej wyżej
 
-    GLfloat _R = chainR*M_PI/nT;
-    GLfloat _r = _R/4;
-    GLfloat _N = 20;
-
-    // std::cout << R << std::endl << r << std::endl << N << std::endl;
-    GLfloat* chain1D = new GLfloat[nT];
-    for(int i = 0; i < nT; i++)
-        chain1D[i] = (float)i/(nT-1);
-
-    point3* chain3D = new point3[nT];
-
-     for(int i = 0; i < nT; i++)
-    {
-        chain3D[i][0]= chainR*cos(2*M_PI*chain1D[i]);
-        chain3D[i][1]= chainR*sin(2*M_PI*chain1D[i]);
-        chain3D[i][2]= 0;
-        // std::cout << chain3D[i][0] << " " << chain3D[i][1] << " " << chain3D[i][2] << std::endl;
-    }
+   
 
 
 
@@ -184,16 +273,7 @@ void RenderScene(void)
     glRotatef(theta[2], 0.0, 0.0, 1.0);
 
     
-    /*Tu będą rysowane torusy o środkach wyliczonych wyżej*/
-    for(int i = 0; i < nT; i++)
-    {
-        // glBegin(GL_POINTS);
-        //     glColor3f(1.0f, 0.0f, 0.0f);
-        //     glVertex3f(chain3D[i][0], chain3D[i][1], chain3D[i][2]);
-        // glEnd();
-        glTranslated(chain3D[i][0], chain3D[i][1], chain3D[i][2]);
-        drawTorus(_N,_r,_R);
-    }
+    drawChain(_nT, _chainR);
 
     
 
