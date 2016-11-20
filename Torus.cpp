@@ -10,8 +10,8 @@ Torus::Torus(GLint N, GLfloat _r, GLfloat _R)
     
     for(int i = 0; i < n; i++)
     {
+        /*Tworzenie dziedziny*/
         param2D[i] = new point2[n];
-
         for(int k = 0; k < n; k++)
         {
             param2D[i][k][0] = (float)i/(n-1);
@@ -26,11 +26,10 @@ Torus::Torus(GLint N, GLfloat _r, GLfloat _R)
     	torus[i] = new point3[N];
     	for(int k = 0; k < n; k++)
     	{
+            /*Wyliczanie punktów torusa na podstawie wzorów z instrukcji*/
     		torus[i][k][0] = ( R + r*cos(2*M_PI*param2D[i][k][1]) )*cos(2*M_PI*param2D[i][k][0]);
     		torus[i][k][1] = ( R + r*cos(2*M_PI*param2D[i][k][1]) )*sin(2*M_PI*param2D[i][k][0]);
     		torus[i][k][2] = r*sin(2*M_PI*param2D[i][k][1]);
-
-    		//std::cout << torus[i][k][0] << " " << torus[i][k][1] << " " << torus[i][k][2] << std::endl;
     	}
     }
 

@@ -6,6 +6,7 @@ typedef float point3[3];
 
 typedef float point2[2];
 
+/*Klasa reprezentująca torus w przestrzeni 3D*/
 class Torus
 {
 private:
